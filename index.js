@@ -1,16 +1,22 @@
+require('dotenv').config();
 const express = require('express');
+const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const sequelize = require('./config/database');
 const taskRoutes = require('./routes/tasks');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
+// Middleware
 app.use(bodyParser.json());
 app.use(taskRoutes);
 
-sequelize.sync({ force: false }) 
-  .then(() => console.log('Database synced'))
-  .catch(err => console.error('Error syncing database:', err));
+// MongoDB Atlas Connection
+const DB_URI = process.env.MONGO_URI;
 
+mongoose.connect(DB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log('Connected to MongoDB Atlas'))
+  .catch(err => console.error('Database connection error:', err));
+
+// Start server
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
